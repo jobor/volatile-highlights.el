@@ -385,7 +385,7 @@ Optional args are the same as `vhl/add-range'."
   (cond
    ;; XEmacs (not tested!)
    (vhl/.xemacsp
-      (map-extents (lambda (hl maparg)
+      (map-extents (lambda (hl _)
                      (and (extent-property hl 'volatile-highlights)
 						  (vhl/.clear-hl hl)))))
    ;; GNU Emacs
@@ -406,9 +406,7 @@ Optional args are the same as `vhl/add-range'."
 (defvar vhl/.installed-extensions nil)
 
 (defun vhl/install-extension (sym)
-  (let ((fn-on  (intern (format "vhl/ext/%s/on" sym)))
-        (fn-off (intern (format "vhl/ext/%s/off" sym)))
-        (cust-name (intern (format "vhl/use-%s-extension-p" sym))))
+  (let ((cust-name (intern (format "vhl/use-%s-extension-p" sym))))
     (cl-pushnew sym vhl/.installed-extensions)
     (eval `(defcustom ,cust-name t
              ,(format "A flag if highlighting support for `%s' is on or not." sym)
@@ -453,6 +451,7 @@ Optional args are the same as `vhl/add-range'."
 (defvar vhl/.after-change-hook-depth 0)
 
 (defun vhl/.push-to-after-change-hook (fn-name)
+  (ignore fn-name)
   ;; Debug
   ;; (if (zerop vhl/.after-change-hook-depth)
   ;;     (message "vlh: push: %s" fn-name)
@@ -464,6 +463,7 @@ Optional args are the same as `vhl/add-range'."
         (1+ vhl/.after-change-hook-depth)))
 
 (defun vhl/.pop-from-after-change-hook (fn-name)
+  (ignore fn-name)
   (setq vhl/.after-change-hook-depth
         (1- vhl/.after-change-hook-depth))
   ;; Debug
@@ -515,9 +515,7 @@ Optional args are the same as `vhl/add-range'."
     `(vhl/disable-advice-if-defined (quote ,fn-name) 'around (quote ,ad-name))))
 
 (defun vhl/require-noerror (feature &optional filename)
-  (condition-case c
-      (require feature)
-    (file-error nil)))
+  (require feature filename :noerror))
 
 (eval-and-compile
 ;; Utility function by Ryan Thompson.
